@@ -1,40 +1,76 @@
 import { useEffect, useState } from "react";
 
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
+
+import { Button } from "@/components/ui/button";
+
 function App() {
   const [user, setUser] = useState(null);
 
-  useEffect(() => {
+  const fetchUser = () => {
     fetch("https://api.freeapi.app/api/v1/public/randomusers")
       .then((res) => res.json())
       .then((res) => {
-        setUser(res.data.data[0]);
+        const users = res.data.data;
+
+        const random = Math.floor(Math.random() * users.length);
+
+        setUser(users[random]);
       })
       .catch((err) => console.log(err));
+  };
+
+  useEffect(() => {
+    fetchUser();
   }, []);
+
   if (!user) {
     return <h1>Loading...</h1>;
   }
 
   return (
-    <>
-      <h1>Random User Card</h1>
+    <div className="flex dark justify-center items-center min-h-screen bg-primary">
+      <Card className="w-87.5">
+        <CardHeader className="items-center">
+          <Avatar className="h-20 w-20">
+            <AvatarImage src={user.picture.large} />
+            <AvatarFallback>
+              {user.name.first[0]}
+            </AvatarFallback>
+          </Avatar>
 
-      <div>
-        <img src={user.picture.large} alt="user" />
+          <CardTitle>
+            {user.name.title} {user.name.first} {user.name.last}
+          </CardTitle>
+        </CardHeader>
 
-        <h2>
-          {user.name.title} {user.name.first} {user.name.last}
-        </h2>
+        <CardContent className="space-y-2">
+          <p>Email: {user.email}</p>
 
-        <p>Email: {user.email}</p>
+          <p>Phone: {user.phone}</p>
 
-        <p>Phone: {user.phone}</p>
+          <p>
+            Location: {user.location.city},{" "}
+            {user.location.country}
+          </p>
 
-        <p>
-          Location: {user.location.city}, {user.location.country}
-        </p>
-      </div>
-    </>
+          <Button onClick={fetchUser} className="w-full">
+            Generate New User
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
